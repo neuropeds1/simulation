@@ -46,7 +46,7 @@ if st.session_state.running:
         row = next(st.session_state.gen)   # 1‑second chunk
 
         # ---------- ICP‑CRISIS override (active for 60 s) -------------------------
-if st.session_state.icp_active:
+    if st.session_state.icp_active:
     if time.time() - st.session_state.icp_timer <= 60:
         # centre values exactly where you want them
         row["HR"]   = np.random.normal(34, 0.5)          # 34 ± 0.5 bpm
