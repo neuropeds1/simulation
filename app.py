@@ -1,6 +1,6 @@
 # app.py  ─────────────────────────────────────────────────────────────────────
 import time
-import numpy as np                     # ⟵ NEW (for np.random.uniform)
+import numpy as np
 import altair as alt
 import pandas as pd
 import streamlit as st
@@ -17,8 +17,8 @@ st.title("🩺 Simulated Patient Monitor")
 duration_min = st.sidebar.slider(
     "Scenario duration (minutes)", 0.5, 10.0, 2.0, 0.5
 )
-start_btn = st.sidebar.button("▶️ Start / Restart")
-icp_btn   = st.sidebar.button("⚠️ ICP Crisis")      # ⟵ NEW button
+start_btn = st.sidebar.button("▶️ Start / Restart")
+icp_btn   = st.sidebar.button("⚠️ ICP Crisis")
 
 # ── session‑state keys ───────────────────────────────────────────────────────
 for key in ("running", "gen", "df", "icp_active", "icp_timer"):
@@ -43,28 +43,20 @@ if icp_btn and st.session_state.running:
 # ── main streaming loop ─────────────────────────────────────────────────────
 if st.session_state.running:
     try:
-        row = next(st.session_state.gen)   # 1‑second chunk
+        row = next(st.session_state.gen)          # 1‑second chunk
 
-        # ---------- ICP‑CRISIS override (active for 60 s) -------------------------
-    if st.session_state.icp_active:
-    if time.time() - st.session_state.icp_timer <= 60:
-        # centre values exactly where you want them
-        row["HR"]   = np.random.normal(34, 0.5)          # 34 ± 0.5 bpm
-        row["SBP"]  = np.random.normal(190, 3)           # 190 ± 3 mmHg
-        row["DBP"]  = np.random.normal(105, 2)           # 105 ± 2 mmHg
-        row["ICP"]  = np.random.normal(45, 1)            # 45 ± 1 mmHg
-        row["SpO2"] = np.random.normal(98, 0.2)          # 98 ± 0.2 %
-
-        # keep physiologic limits sane
-        row["HR"]   = max(row["HR"], 30)
-        row["SBP"]  = max(row["SBP"],  60)
-        row["DBP"]  = max(row["DBP"],  30)
-        row["ICP"]  = max(row["ICP"],   0)
-        row["SpO2"] = np.clip(row["SpO2"], 70, 100)
-    else:
-        st.session_state.icp_active = False
-# -------------------------------------------------------------------------
-
+        # ---------- ICP‑CRISIS override (active for 60 s) ------------------
+        if st.session_state.icp_active:
+            if time.time() - st.session_state.icp_timer <= 60:
+                # centred values with small variability
+                row["HR"]   = np.random.normal(34, 0.5)     # 34 ± 0.5
+                row["SBP"]  = np.random.normal(190, 3)      # 190 ± 3
+                row["DBP"]  = np.random.normal(105, 2)      # 105 ± 2
+                row["ICP"]  = np.random.normal(45, 1)       # 45 ± 1
+                row["SpO2"] = np.random.normal(98, 0.2)     # 98 ± 0.2
+            else:
+                st.session_state.icp_active = False
+        # -------------------------------------------------------------------
 
         # append new row
         st.session_state.df = pd.concat(
@@ -81,13 +73,13 @@ if st.session_state.running:
 if not st.session_state.df.empty:
     df = st.session_state.df
 
-    col1, col2, col3, col4, col5, col6 = st.columns(6)      # ⟵ now 6 cols
-    col1.metric("HR (bpm)",   f"{df.HR.iloc[-1]:.0f}")
-    col2.metric("SBP (mmHg)", f"{df.SBP.iloc[-1]:.0f}")
-    col3.metric("DBP (mmHg)", f"{df.DBP.iloc[-1]:.0f}")
-    col4.metric("RR (bpm)",   f"{df.RR.iloc[-1]:.0f}")
-    col5.metric("SpO₂ (%)",   f"{df.SpO2.iloc[-1]:.0f}")
-    col6.metric("ICP (mmHg)", f"{df.ICP.iloc[-1]:.0f}")     # ⟵ NEW metric
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
+    col1.metric("HR (bpm)",   f"{df.HR.iloc[-1]:.0f}")
+    col2.metric("SBP (mmHg)", f"{df.SBP.iloc[-1]:.0f}")
+    col3.metric("DBP (mmHg)", f"{df.DBP.iloc[-1]:.0f}")
+    col4.metric("RR (bpm)",   f"{df.RR.iloc[-1]:.0f}")
+    col5.metric("SpO₂ (%)",   f"{df.SpO2.iloc[-1]:.0f}")
+    col6.metric("ICP (mmHg)", f"{df.ICP.iloc[-1]:.0f}")
 
     chart = (
         alt.Chart(df.melt("elapsed_s"))
