@@ -57,5 +57,9 @@ if start_button:
             [st.session_state.df, pd.DataFrame([row])], ignore_index=True
         )
         draw_dashboard(st.session_state.df)
-        st.experimental_rerun()  # triggers next loop iteration
+       # ⬆ with a version‑safe one:
+if hasattr(st, "rerun"):          # Streamlit ≥ 1.47
+    st.rerun()
+else:                             # Streamlit ≤ 1.46 (keeps old name)
+    st.experimental_rerun()
 
