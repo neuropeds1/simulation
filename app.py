@@ -17,7 +17,8 @@ for k in ("run","gen","df","crisis","t0",
           "ecg","pleth","resp","icp"):
     if k not in st.session_state: st.session_state[k]=None
 
-st.session_state.df = st.session_state.df or pd.DataFrame()
+if st.session_state.df is None:
+    st.session_state.df = pd.DataFrame()
 for name, fs in (("ecg",ECG_FS),("pleth",PLETH_FS),("resp",RESP_FS),("icp",ICP_FS)):
     if st.session_state[name] is None:
         st.session_state[name]=np.zeros(fs*BUF_S)
