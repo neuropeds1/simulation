@@ -4,6 +4,12 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 from generator import vitals_stream
+import pandas as pd       # (already there in your file)
+
+# --- safe initialisation -------------------------------------
+if "df" not in st.session_state or st.session_state.df is None:
+    st.session_state.df = pd.DataFrame()      # <-- start empty, not None
+# -------------------------------------------------------------
 
 st.set_page_config(page_title="SimVitals", layout="wide")
 st.title("🩺 Simulated Patient Monitor")
