@@ -3,3 +3,8 @@ altair>=5
 pandas>=2
 numpy>=1.26
 plotly>=5.10
+streamlit>=1.34
+bokeh>=3.4
+numpy>=1.26
+# Pulse wheel – Community Cloud will build it from source
+git+https://gitlab.kitware.com/physiology/engine.git
